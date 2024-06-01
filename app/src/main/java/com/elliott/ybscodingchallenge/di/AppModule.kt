@@ -1,10 +1,12 @@
 package com.elliott.ybscodingchallenge.di
 
-import com.squareup.moshi.Moshi
+import com.elliott.ybscodingchallenge.data.FlickrSearch
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Singleton
@@ -23,7 +25,17 @@ object AppModule {
                     .asLenient()
                     .withNullSerialization()
             )
-            .baseUrl("")
+            .baseUrl("https://api.flickr.com/services")
             .build()
     }
+
+    @Singleton
+    @Provides
+    fun provideFlickrSearchApi(retrofit: Retrofit): FlickrSearch.Api {
+        return retrofit.create(FlickrSearch.Api::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
 }
