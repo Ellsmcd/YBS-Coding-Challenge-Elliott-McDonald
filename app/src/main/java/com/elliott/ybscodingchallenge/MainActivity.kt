@@ -10,7 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.elliott.ybscodingchallenge.features.home.HomeScreen
+import com.elliott.ybscodingchallenge.features.home.ui.HomeScreen
 import com.elliott.ybscodingchallenge.ui.theme.YBSCodingChallengeTheme
 import dagger.hilt.android.AndroidEntryPoint
 

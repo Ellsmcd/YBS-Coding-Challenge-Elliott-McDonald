@@ -1,4 +1,4 @@
-package com.elliott.ybscodingchallenge.data
+package com.elliott.ybscodingchallenge.data.searchapi
 
 data class FlickrSearchResponse(
     val photos: Photos?,

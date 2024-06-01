@@ -1,6 +1,6 @@
 package com.elliott.ybscodingchallenge.di
 
-import com.elliott.ybscodingchallenge.data.FlickrSearch
+import com.elliott.ybscodingchallenge.data.searchapi.FlickrSearch
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -31,6 +31,18 @@ object AppModule {
     @Provides
     fun provideOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val url = chain
+                    .request()
+                    .url
+                    .newBuilder()
+                    .addQueryParameter("api_key", "40124db5b76259ab8e386feac0acfb81")
+                    .addQueryParameter("safe_search", "1")
+                    .addQueryParameter("format", "json")
+                    .addQueryParameter("nojsoncallback", "1")
+                    .build()
+                chain.proceed(chain.request().newBuilder().url(url).build())
+            }
             .addInterceptor(
                 HttpLoggingInterceptor()
                     .setLevel(HttpLoggingInterceptor.Level.BODY)

@@ -1,10 +1,9 @@
-package com.elliott.ybscodingchallenge.features.home
+package com.elliott.ybscodingchallenge.features.home.ui
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.elliott.ybscodingchallenge.data.FlickrSearch
-import com.elliott.ybscodingchallenge.data.FlickrSearchResponse
+import com.elliott.ybscodingchallenge.data.searchapi.FlickrSearch
+import com.elliott.ybscodingchallenge.data.searchapi.FlickrSearchResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,7 +25,6 @@ class HomeViewModel @Inject constructor(
     suspend fun getImages() {
         viewModelScope.launch {
             val response = searchApi.searchImages()
-            Log.w("lol", response.toString())
             _state.value = _state.value.copy(flickrSearchResults = response)
         }
     }
