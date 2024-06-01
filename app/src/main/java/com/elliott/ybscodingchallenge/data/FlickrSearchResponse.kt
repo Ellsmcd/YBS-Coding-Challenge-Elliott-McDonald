@@ -1,7 +1,7 @@
 package com.elliott.ybscodingchallenge.data
 
 data class FlickrSearchResponse(
-    val photos: Photos,
+    val photos: Photos?,
     val stat: String
 )
 
@@ -24,3 +24,4 @@ data class Photo(
     val server: String,
     val title: String
 )
+

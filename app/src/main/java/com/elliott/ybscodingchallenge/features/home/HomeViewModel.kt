@@ -1,5 +1,6 @@
 package com.elliott.ybscodingchallenge.features.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.elliott.ybscodingchallenge.data.FlickrSearch
@@ -25,6 +26,7 @@ class HomeViewModel @Inject constructor(
     suspend fun getImages() {
         viewModelScope.launch {
             val response = searchApi.searchImages()
+            Log.w("lol", response.toString())
             _state.value = _state.value.copy(flickrSearchResults = response)
         }
     }
