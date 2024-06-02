@@ -22,14 +22,42 @@ class HomeViewModel @Inject constructor(
             getImages()
         }
     }
-    suspend fun getImages() {
+
+    fun onEvent(event: HomeEvent) {
+        when (event) {
+            is HomeEvent.TagAdded -> addTag(event.tag)
+            is HomeEvent.TagRemoved -> removeTag(event.tag)
+        }
+    }
+
+    private fun addTag(tag: String) {
+        val tags = _state.value.tags
+        tags.add(tag)
+        _state.value = _state.value.copy(tags = tags)
+        getImages()
+    }
+
+    private fun removeTag(tag: String) {
+        val tags = _state.value.tags
+        tags.remove(tag)
+        _state.value = _state.value.copy(tags = tags)
+        getImages()
+    }
+
+    private fun getImages() {
         viewModelScope.launch {
-            val response = searchApi.searchImages()
+            val response = searchApi.searchImages(_state.value.tags.joinToString(separator = ","))
             _state.value = _state.value.copy(flickrSearchResults = response)
         }
     }
 }
 
 data class HomeViewModelState(
-    val flickrSearchResults: FlickrSearchResponse? = null
+    val flickrSearchResults: FlickrSearchResponse? = null,
+    val tags: MutableList<String> = mutableListOf("Yorkshire")
 )
+
+sealed class HomeEvent {
+    data class TagAdded(val tag: String): HomeEvent()
+    data class TagRemoved(val tag: String): HomeEvent()
+}

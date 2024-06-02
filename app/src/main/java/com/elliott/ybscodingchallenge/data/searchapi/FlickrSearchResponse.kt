@@ -22,6 +22,7 @@ data class Photo(
     val owner: String,
     val secret: String,
     val server: String,
-    val title: String
+    val title: String,
+    val tags: String,
 )
 

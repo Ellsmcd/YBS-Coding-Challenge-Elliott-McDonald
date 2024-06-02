@@ -14,8 +14,10 @@ object FlickrSearch {
         // Put some of this in constants
         @GET("/services/rest/")
         suspend fun searchImages(
+            @Query("tags") tags: String,
             @Query("method") method: String = "flickr.photos.search",
-            @Query("tags") tags: String = "Yorkshire",
+            @Query("tag_mode") tagMode: String = "all",
+            @Query("extras") extras: String = "tags",
         ): Response<FlickrSearchResponse>
     }
 
@@ -23,9 +25,9 @@ object FlickrSearch {
         private val api: Api,
         private val ioDispatcher: CoroutineDispatcher
     ) {
-        suspend fun searchImages(): FlickrSearchResponse? {
+        suspend fun searchImages(tags: String): FlickrSearchResponse? {
             return withContext(ioDispatcher) {
-                api.searchImages().body()
+                api.searchImages(tags = tags).body()
             }
         }
     }
