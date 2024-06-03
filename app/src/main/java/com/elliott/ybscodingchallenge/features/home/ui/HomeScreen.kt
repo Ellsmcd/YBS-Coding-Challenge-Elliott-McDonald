@@ -1,5 +1,6 @@
 package com.elliott.ybscodingchallenge.features.home.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,6 +19,7 @@ import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -65,36 +67,79 @@ fun HomeScreen(
         ) {
             item {
                 TagSearchScreen(
+                    searchTerm = state.searchInput,
+                    searchUsername = state.searchUserId,
                     onEvent = {
                         viewModel.onEvent(it)
                     }
                 )
             }
             item {
+                state.userId?.let {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth().padding(start = 8.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.buddy_icon_placeholder),
+                            "",
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .border(width = 1.dp, Color.Black, shape = CircleShape))
+                        TagComponent(
+                            text = it,
+                            modifier = Modifier
+                                .clickable {
+                                    viewModel.onEvent(HomeEvent.UserIdRemoved)
+                                }
+                        )
+                    }
+                }
+            }
+            item {
                 LazyHorizontalGrid(
                     rows = GridCells.Fixed(1),
-                    modifier = Modifier.heightIn(max = 24.dp).fillMaxWidth(),
+                    modifier = Modifier
+                        .heightIn(max = 24.dp)
+                        .fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start)
                 ) {
                     val tags = state.tags
+                    item {
+                        Checkbox(
+                            checked = state.strictSearch,
+                            onCheckedChange = {
+                                viewModel.onEvent(HomeEvent.StrictSearchInteracted(it))
+                            }
+                        )
+                    }
                     itemsIndexed(tags) { index, tag ->
                         TagComponent(
                             tag,
                             modifier = Modifier
                                 .padding(
                                     start = if (index == 0) 8.dp else 0.dp,
-                                ).clickable {
+                                )
+                                .clickable {
                                     viewModel.onEvent(HomeEvent.TagRemoved(tag))
                                 }
                         )
                     }
                 }
             }
-            itemsIndexed(state.flickrSearchResults!!.photos!!.photo) { index, photo ->
-                ImageItem(
-                    photo = photo,
-                    modifier = Modifier.padding(top = if (index == 0) 8.dp else 0.dp)
-                )
+            if (state.flickrSearchResults!!.stat == "fail") {
+                item {
+                    Text(text = "Oh no is empty")
+                }
+            } else {
+                itemsIndexed(state.flickrSearchResults!!.photos!!.photo) { index, photo ->
+                    ImageItem(
+                        photo = photo,
+                        modifier = Modifier.padding(top = if (index == 0) 8.dp else 0.dp)
+                    )
+                }
             }
         }
     }
@@ -191,7 +236,7 @@ fun ImageItemPreview() {
                 secret = "",
                 server = "",
                 title = "Picture of a happy cow!",
-                tags = "Yorkshire Whitby",
+                tags = "Yorkshire",
             )
         )
     }
