@@ -26,18 +26,16 @@ class HomeViewModel @Inject constructor(
 
     fun onEvent(event: HomeEvent) {
         when (event) {
-            is HomeEvent.TagAdded -> addTag(event.tag)
+            is HomeEvent.SearchTermAdded -> addSearchTerm(event.term)
             is HomeEvent.TagRemoved -> removeTag(event.tag)
-            is HomeEvent.UserIdAdded -> addUserId(event.userId)
             is HomeEvent.UserIdRemoved -> removeUserId()
             is HomeEvent.TextChanged -> updateSearchText(event.searchTerm)
             is HomeEvent.StrictSearchInteracted -> updateStrictSearch(event.enabled)
-            is HomeEvent.SearchTypeChanged -> updateSearchType(event.userId)
         }
     }
 
-    private fun updateSearchType(searchUsername: Boolean) {
-        _state.value = _state.value.copy(searchUserId = searchUsername)
+    private fun addSearchTerm(term: String) {
+        if (useRegex(term)) addUserId(term) else addTag(term)
     }
 
     private fun updateSearchText(text: String) {
@@ -74,6 +72,12 @@ class HomeViewModel @Inject constructor(
         getImages()
     }
 
+    fun useRegex(input: String): Boolean {
+        val regex1 = Regex(pattern = "\\d\\d\\d\\d\\d\\d\\d\\d\\d@N\\d\\d", options = setOf(RegexOption.IGNORE_CASE))
+        val regex2 = Regex(pattern = "\\d\\d\\d\\d\\d\\d\\d\\d@N\\d\\d", options = setOf(RegexOption.IGNORE_CASE))
+        return regex1.matches(input) || regex2.matches(input)
+    }
+
 
 
     private fun getImages() {
@@ -94,16 +98,13 @@ data class HomeViewModelState constructor(
     val tags: MutableList<String> = mutableListOf("Yorkshire"),
     val userId: String? = null,
     val searchInput: String = "",
-    val searchUserId: Boolean = false,
     val strictSearch: Boolean = false,
 )
 
 sealed class HomeEvent {
-    data class TagAdded(val tag: String): HomeEvent()
     data class TagRemoved(val tag: String): HomeEvent()
-    data class UserIdAdded(val userId: String): HomeEvent()
+    data class SearchTermAdded(val term: String): HomeEvent()
     data object UserIdRemoved: HomeEvent()
     data class StrictSearchInteracted(val enabled: Boolean): HomeEvent()
     data class TextChanged(val searchTerm: String): HomeEvent()
-    data class SearchTypeChanged(val userId: Boolean): HomeEvent()
 }

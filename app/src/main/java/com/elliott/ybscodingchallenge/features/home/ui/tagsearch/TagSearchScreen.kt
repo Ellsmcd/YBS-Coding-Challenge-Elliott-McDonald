@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -26,33 +25,21 @@ import kotlinx.coroutines.launch
 @Composable
 fun TagSearchScreen(
     searchTerm: String,
-    searchUsername: Boolean,
     onEvent: (HomeEvent) -> Unit = { },
 ) {
     TextField(
         value = searchTerm,
         onValueChange = { onEvent(HomeEvent.TextChanged(it)) },
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
         label = { Text("Tags") },
         trailingIcon = {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Checkbox(
-                    checked = searchUsername,
-                    onCheckedChange = {
-                        onEvent(HomeEvent.SearchTypeChanged(it))
-                    }
-                )
-
                 Button(
                     onClick = {
-                        if (searchUsername) {
-                            onEvent(HomeEvent.UserIdAdded(searchTerm))
-                        } else {
-                            onEvent(HomeEvent.TagAdded(tag = searchTerm))
-                        }
+                        onEvent(HomeEvent.SearchTermAdded(searchTerm))
                     },
                     modifier = Modifier.padding(horizontal = 8.dp)
                 ) {
