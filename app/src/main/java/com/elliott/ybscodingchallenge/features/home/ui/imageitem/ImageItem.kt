@@ -21,6 +21,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -36,6 +37,7 @@ fun ImageItem(
     modifier: Modifier = Modifier,
     onEvent: (HomeEvent) -> Unit = { },
     onImageClick: (Photo) -> Unit = { },
+    isDetailPage: Boolean = false,
 ) {
     Column(
         modifier = modifier.then(
@@ -64,16 +66,30 @@ fun ImageItem(
                     .shadow(
                         elevation = 8.dp,
                         shape = CircleShape,
-                        )
+                    )
                     .size(48.dp)
             )
-            Text(
-                text = photo.owner,
-                style = Typography.bodySmall,
-                modifier = Modifier.clickable {
-                    onEvent(HomeEvent.SearchTermAdded(photo.owner))
+            Column(
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = photo.owner,
+                    style = Typography.bodySmall,
+                    modifier = if (!isDetailPage) {
+                        Modifier.clickable {
+                            onEvent(HomeEvent.SearchTermAdded(photo.owner))
+                        }
+                    } else {
+                        Modifier
+                    }
+                )
+                if (isDetailPage) {
+                    Text(
+                        text = photo.datetaken,
+                        style = Typography.bodySmall,
+                    )
                 }
-            )
+            }
         }
         Text(
             text = photo.title,
@@ -89,33 +105,62 @@ fun ImageItem(
             itemsIndexed(tags) { index, tag ->
                 TagComponent(
                     tag,
-                    modifier = Modifier
-                        .padding(
-                            start = if (index == 0) 8.dp else 0.dp,
-                        )
-                        .clickable {
-                            onEvent(HomeEvent.SearchTermAdded(tag))
-                        }
+                    modifier = if (!isDetailPage) {
+                        Modifier
+                            .padding(
+                                start = if (index == 0) 8.dp else 0.dp,
+                            )
+                            .clickable {
+                                onEvent(HomeEvent.SearchTermAdded(tag))
+                            }
+                    } else {
+                        Modifier
+                            .padding(
+                                start = if (index == 0) 8.dp else 0.dp,
+                            )
+                    }
                 )
             }
+
         }
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    onImageClick(photo)
-                }
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth()
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data("https://live.staticflickr.com/${photo.server}/${photo.id}_${photo.secret}_b.jpg")
+                    .data(
+                        if (photo.url_h.isNullOrBlank()) {
+                        "https://live.staticflickr.com/${photo.server}/${photo.id}_${photo.secret}_b.jpg"
+                    } else {
+                        photo.url_h
+                        }
+                    )
                     .build(),
                 contentDescription = photo.title,
-                modifier = Modifier.shadow(8.dp),
+                modifier = if (!isDetailPage) {
+                    Modifier
+                        .shadow(8.dp)
+                        .clickable {
+                            onImageClick(photo)
+                        }
+                } else {
+                    Modifier.shadow(8.dp)
+                },
                 contentScale = ContentScale.Fit,
                 placeholder = (if (LocalInspectionMode.current) painterResource(id = R.drawable.coil_preview) else null),
             )
+            if (isDetailPage) {
+                Text(
+                    text = photo.views + " views",
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                    textAlign = TextAlign.Left)
+                Text(
+                    text = photo.description._content,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                    textAlign = TextAlign.Left)
+            }
         }
     }
 }

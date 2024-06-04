@@ -14,7 +14,7 @@ data class Photos(
 )
 
 data class Photo(
-    val dateTaken: String?,
+    val datetaken: String,
     val description: DescriptionContent,
     val farm: Int,
     val id: String,
@@ -26,6 +26,7 @@ data class Photo(
     val server: String,
     val title: String,
     val tags: String,
+    val url_h: String? = null,
     val views: String
 )
 

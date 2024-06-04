@@ -21,7 +21,6 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,8 +29,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliott.ybscodingchallenge.R
 import com.elliott.ybscodingchallenge.data.searchapi.DescriptionContent
 import com.elliott.ybscodingchallenge.data.searchapi.Photo
@@ -43,10 +40,10 @@ import com.elliott.ybscodingchallenge.ui.theme.YBSCodingChallengeTheme
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = viewModel(),
+    state: HomeViewModelState,
+    onEvent: (HomeEvent) -> Unit,
     onImageClick: (Photo) -> Unit,
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -56,7 +53,7 @@ fun HomeScreen(
             TagSearchScreen(
                 searchTerm = state.searchInput,
                 onEvent = {
-                    viewModel.onEvent(it)
+                    onEvent(it)
                 }
             )
         }
@@ -64,7 +61,7 @@ fun HomeScreen(
             UserSearchComponent(
                 userId = state.userId,
                 onEvent = {
-                    viewModel.onEvent(it)
+                    onEvent(it)
                 },
             )
         }
@@ -73,12 +70,21 @@ fun HomeScreen(
                 tags = state.tags,
                 strictSearch = state.strictSearch,
                 onEvent = {
-                    viewModel.onEvent(it)
+                    onEvent(it)
                 })
         }
-        if (state.flickrSearchResults == null) {
-            item {
-                LoadingScreen()
+        state.flickrSearchResults?.photos?.let {
+            itemsIndexed(it.photo) { index, photo ->
+                ImageItem(
+                    photo = photo,
+                    modifier = Modifier.padding(top = if (index == 0) 8.dp else 0.dp, bottom = 24.dp),
+                    onEvent = {
+                        onEvent(it)
+                    },
+                    onImageClick = {
+                        onImageClick(it)
+                    },
+                )
             }
         }
         state.flickrSearchResults?.stat?.let {
@@ -91,18 +97,9 @@ fun HomeScreen(
                 }
             }
         }
-        state.flickrSearchResults?.photos?.let {
-            itemsIndexed(it.photo) { index, photo ->
-                ImageItem(
-                    photo = photo,
-                    modifier = Modifier.padding(top = if (index == 0) 8.dp else 0.dp, bottom = 24.dp),
-                    onEvent = {
-                        viewModel.onEvent(it)
-                    },
-                    onImageClick = {
-                        onImageClick(it)
-                    },
-                )
+        if (state.flickrSearchResults == null) {
+            item {
+                LoadingScreen()
             }
         }
     }
@@ -193,7 +190,7 @@ fun ImageItemPreview() {
     YBSCodingChallengeTheme {
         ImageItem(
             photo = Photo(
-                dateTaken = "2024-04-21 14:11:00",
+                datetaken = "2024-04-21 14:11:00",
                 description = DescriptionContent("A happy cow that I met on a walk"),
                 farm = 0,
                 id = "",

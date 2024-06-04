@@ -73,7 +73,7 @@ class HomeViewModel @Inject constructor(
         getImages()
     }
 
-    fun useRegex(input: String): Boolean {
+    private fun useRegex(input: String): Boolean {
         val regex1 = Regex(pattern = "\\d\\d\\d\\d\\d\\d\\d\\d\\d@N\\d\\d", options = setOf(RegexOption.IGNORE_CASE))
         val regex2 = Regex(pattern = "\\d\\d\\d\\d\\d\\d\\d\\d@N\\d\\d", options = setOf(RegexOption.IGNORE_CASE))
         return regex1.matches(input) || regex2.matches(input)
@@ -95,7 +95,7 @@ class HomeViewModel @Inject constructor(
     }
 }
 
-data class HomeViewModelState constructor(
+data class HomeViewModelState(
     val flickrSearchResults: FlickrSearchResponse? = null,
     val tags: MutableList<String> = mutableListOf("Yorkshire"),
     val userId: String? = null,
