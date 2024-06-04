@@ -1,5 +1,6 @@
 package com.elliott.ybscodingchallenge.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -18,16 +19,14 @@ fun TagComponent(
 ) {
     Box(modifier = modifier.then(
         Modifier
-        .border(width = 1.dp, Color.Black, shape = tagShape)
-        .padding(start = 8.dp, end = 16.dp)
+            .border(width = 1.dp, Color.Black, shape = tagShape)
+            .background(Color.White,shape = tagShape)
+            .padding(start = 8.dp, end = 16.dp)
     ),
         ) {
         Text(text = text)
     }
 }
-
-
-
 
 private val tagShape = GenericShape {size, _ ->
 

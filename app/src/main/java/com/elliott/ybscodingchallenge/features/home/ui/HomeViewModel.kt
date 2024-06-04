@@ -39,7 +39,8 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun updateSearchText(text: String) {
-        _state.value = _state.value.copy(searchInput = text)
+        val sanitisedText = text.replace(" ", "")
+        _state.value = _state.value.copy(searchInput = sanitisedText)
     }
 
     private fun addTag(tag: String) {
@@ -51,8 +52,8 @@ class HomeViewModel @Inject constructor(
 
     private fun removeTag(tag: String) {
         val tags = _state.value.tags
-        _state.value = _state.value.copy(tags = tags)
         tags.remove(tag)
+        _state.value = _state.value.copy(tags = tags)
         getImages()
     }
 
@@ -81,6 +82,7 @@ class HomeViewModel @Inject constructor(
 
 
     private fun getImages() {
+        _state.value = _state.value.copy(flickrSearchResults = null)
         viewModelScope.launch {
             val response = searchApi.searchImages(
                 tags = _state.value.tags.joinToString(separator = ","),

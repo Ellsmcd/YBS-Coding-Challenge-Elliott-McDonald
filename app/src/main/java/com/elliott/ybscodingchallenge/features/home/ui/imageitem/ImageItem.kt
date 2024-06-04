@@ -1,7 +1,5 @@
 package com.elliott.ybscodingchallenge.features.home.ui.imageitem
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,8 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -38,6 +35,7 @@ fun ImageItem(
     photo: Photo,
     modifier: Modifier = Modifier,
     onEvent: (HomeEvent) -> Unit = { },
+    onImageClick: (Photo) -> Unit = { },
 ) {
     Column(
         modifier = modifier.then(
@@ -49,7 +47,8 @@ fun ImageItem(
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 8.dp),
+            modifier = Modifier
+                .padding(horizontal = 8.dp),
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
@@ -62,9 +61,11 @@ fun ImageItem(
                         else painterResource(id = R.drawable.buddy_icon_placeholder)),
                 error = painterResource(id = R.drawable.buddy_icon_placeholder),
                 modifier = Modifier
+                    .shadow(
+                        elevation = 8.dp,
+                        shape = CircleShape,
+                        )
                     .size(48.dp)
-                    .clip(CircleShape)
-                    .border(width = 1.dp, Color.Black, shape = CircleShape)
             )
             Text(
                 text = photo.owner,
@@ -102,13 +103,16 @@ fun ImageItem(
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0x4d000000))
+                .clickable {
+                    onImageClick(photo)
+                }
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data("https://live.staticflickr.com/${photo.server}/${photo.id}_${photo.secret}_b.jpg")
                     .build(),
                 contentDescription = photo.title,
+                modifier = Modifier.shadow(8.dp),
                 contentScale = ContentScale.Fit,
                 placeholder = (if (LocalInspectionMode.current) painterResource(id = R.drawable.coil_preview) else null),
             )

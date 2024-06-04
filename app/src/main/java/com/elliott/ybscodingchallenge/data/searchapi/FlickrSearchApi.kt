@@ -17,7 +17,7 @@ object FlickrSearch {
             @Query("tag_mode") tagMode: String = "all",
             @Query("user_id") userId: String? = null,
             @Query("method") method: String = "flickr.photos.search",
-            @Query("extras") extras: String = "tags",
+            @Query("extras") extras: String = "description, date_taken, tags, views",
         ): Response<FlickrSearchResponse>
     }
 
