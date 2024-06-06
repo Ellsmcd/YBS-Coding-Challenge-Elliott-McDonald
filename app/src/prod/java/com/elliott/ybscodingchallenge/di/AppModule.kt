@@ -3,6 +3,7 @@ package com.elliott.ybscodingchallenge.di
 import com.elliott.ybscodingchallenge.data.photorepository.PhotoRepository
 import com.elliott.ybscodingchallenge.data.photorepository.PhotoRepositoryImpl
 import com.elliott.ybscodingchallenge.data.searchapi.FlickrSearch
+import com.elliott.ybscodingchallenge.data.searchapi.FlickrService
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -70,13 +71,25 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideFlickrSearchApi(retrofit: Retrofit): FlickrSearch.Api {
+    internal fun provideFlickrService(
+        api: FlickrSearch.Api,
+        ioDispatcher: CoroutineDispatcher
+    ): FlickrService {
+        return FlickrSearch.Service(
+            api,
+            ioDispatcher
+        )
+    }
+
+    @Singleton
+    @Provides
+    internal fun provideFlickrSearchApi(retrofit: Retrofit): FlickrSearch.Api {
         return retrofit.create(FlickrSearch.Api::class.java)
     }
 
     @Singleton
     @Provides
-    fun provideIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
+    internal fun provideIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
 
     @Singleton
     @Provides

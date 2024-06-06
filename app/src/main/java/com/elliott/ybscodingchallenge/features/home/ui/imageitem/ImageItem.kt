@@ -25,12 +25,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
+import com.elliott.ybscodingchallenge.BuildConfig
 import com.elliott.ybscodingchallenge.R
 import com.elliott.ybscodingchallenge.data.searchapi.Photo
 import com.elliott.ybscodingchallenge.features.home.ui.HomeEvent
@@ -43,6 +45,7 @@ fun ImageItem(
     modifier: Modifier = Modifier,
     onEvent: (HomeEvent) -> Unit = { },
     isDetailPage: Boolean = false,
+    index: Int = 0,
 ) {
     Column(
         modifier = modifier.then(
@@ -83,7 +86,7 @@ fun ImageItem(
                     modifier = if (!isDetailPage) {
                         Modifier.clickable {
                             onEvent(HomeEvent.SearchTermAdded(photo.owner))
-                        }
+                        }.testTag("imageUserId$index")
                     } else {
                         Modifier
                     }
@@ -92,6 +95,7 @@ fun ImageItem(
                     Text(
                         text = photo.datetaken,
                         style = Typography.bodySmall,
+                        modifier = Modifier.testTag("detailDate")
                     )
                 }
             }
@@ -118,11 +122,12 @@ fun ImageItem(
                             .clickable {
                                 onEvent(HomeEvent.SearchTermAdded(tag))
                             }
+                            .testTag("imageTag$index")
                     } else {
                         Modifier
                             .padding(
                                 start = if (index == 0) 8.dp else 0.dp,
-                            )
+                            ).testTag("imageTag$index")
                     }
                 )
             }
@@ -135,9 +140,11 @@ fun ImageItem(
             SubcomposeAsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(
-                        if (photo.url_h.isNullOrBlank()) {
+                        if (BuildConfig.FLAVOR == "local") {
+                             R.drawable.coil_preview
+                        } else if (photo.url_h.isNullOrBlank()) {
                         "https://live.staticflickr.com/${photo.server}/${photo.id}_${photo.secret}_b.jpg"
-                    } else {
+                    }  else {
                         photo.url_h
                         }
                     )
@@ -158,20 +165,26 @@ fun ImageItem(
                     Modifier
                         .clickable {
                             onEvent(HomeEvent.PhotoTapped(photo))
-                        }
+                        }.testTag("image$index")
                 } else {
-                    Modifier
+                    Modifier.testTag("detailImage")
                 },
                 contentScale = ContentScale.Fit,
             )
             if (isDetailPage) {
                 Text(
                     text = photo.views + " views",
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                        .testTag("detailViews"),
                     textAlign = TextAlign.Left)
                 Text(
                     text = photo.description._content,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                        .testTag("detailDescription"),
                     textAlign = TextAlign.Left)
             }
         }

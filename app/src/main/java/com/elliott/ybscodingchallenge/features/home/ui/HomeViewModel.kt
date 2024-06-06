@@ -3,8 +3,8 @@ package com.elliott.ybscodingchallenge.features.home.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.elliott.ybscodingchallenge.data.photorepository.PhotoRepository
-import com.elliott.ybscodingchallenge.data.searchapi.FlickrSearch
 import com.elliott.ybscodingchallenge.data.searchapi.FlickrSearchResponse
+import com.elliott.ybscodingchallenge.data.searchapi.FlickrService
 import com.elliott.ybscodingchallenge.data.searchapi.Photo
 import com.elliott.ybscodingchallenge.data.searchapi.TagMode
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val searchApi: FlickrSearch.Service,
+    private val searchApi: FlickrService,
     private val photoRepository: PhotoRepository,
 ): ViewModel() {
     private var _state: MutableStateFlow<HomeViewModelState> = MutableStateFlow(HomeViewModelState())

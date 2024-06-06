@@ -24,11 +24,11 @@ object FlickrSearch {
     class Service @Inject constructor(
         private val api: Api,
         private val ioDispatcher: CoroutineDispatcher
-    ) {
-        suspend fun searchImages(
+    ): FlickrService {
+        override suspend fun searchImages(
             tags: String,
             tagMode: TagMode,
-            userId: String? = null,
+            userId: String?,
         ): FlickrSearchResponse? {
             return withContext(ioDispatcher) {
                 api.searchImages(
@@ -39,6 +39,14 @@ object FlickrSearch {
             }
         }
     }
+}
+
+interface FlickrService {
+    suspend fun searchImages(
+        tags: String,
+        tagMode: TagMode,
+        userId: String? = null,
+    ): FlickrSearchResponse?
 }
 
 enum class TagMode {

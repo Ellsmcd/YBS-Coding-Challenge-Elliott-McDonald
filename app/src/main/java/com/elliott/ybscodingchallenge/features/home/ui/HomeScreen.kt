@@ -29,13 +29,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import com.elliott.ybscodingchallenge.R
 import com.elliott.ybscodingchallenge.data.searchapi.DescriptionContent
 import com.elliott.ybscodingchallenge.data.searchapi.Photo
@@ -123,6 +123,7 @@ fun HomeScreen(
                             onEvent = { event ->
                                 viewModel.onEvent(event)
                             },
+                            index = index
                         )
                     }
                 }
@@ -203,6 +204,7 @@ fun TagSearchComponent(
                     .clickable {
                         onEvent(HomeEvent.TagRemoved(tag))
                     }
+                    .testTag("tag$index")
             )
         }
     }
@@ -233,7 +235,7 @@ fun UserSearchComponent(
                 modifier = Modifier
                     .clickable {
                         onEvent(HomeEvent.UserIdRemoved)
-                    }
+                    }.testTag("usernameSearchText")
             )
         }
     }
@@ -245,7 +247,9 @@ fun LoadingScreen() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        CircularProgressIndicator()
+        CircularProgressIndicator(
+            modifier = Modifier.testTag("loadingSpinner")
+        )
     }
 }
 
