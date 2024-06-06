@@ -1,10 +1,13 @@
 package com.elliott.ybscodingchallenge.features.home.ui.imageitem
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -12,11 +15,13 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -24,6 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.elliott.ybscodingchallenge.R
 import com.elliott.ybscodingchallenge.data.searchapi.Photo
@@ -36,7 +42,6 @@ fun ImageItem(
     photo: Photo,
     modifier: Modifier = Modifier,
     onEvent: (HomeEvent) -> Unit = { },
-    onImageClick: (Photo) -> Unit = { },
     isDetailPage: Boolean = false,
 ) {
     Column(
@@ -121,14 +126,13 @@ fun ImageItem(
                     }
                 )
             }
-
         }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            AsyncImage(
+            SubcomposeAsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(
                         if (photo.url_h.isNullOrBlank()) {
@@ -138,18 +142,27 @@ fun ImageItem(
                         }
                     )
                     .build(),
+                loading = {
+                    Box(
+                        modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                            .background(Color.White),
+                        Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                },
                 contentDescription = photo.title,
                 modifier = if (!isDetailPage) {
                     Modifier
-                        .shadow(8.dp)
                         .clickable {
-                            onImageClick(photo)
+                            onEvent(HomeEvent.PhotoTapped(photo))
                         }
                 } else {
-                    Modifier.shadow(8.dp)
+                    Modifier
                 },
                 contentScale = ContentScale.Fit,
-                placeholder = (if (LocalInspectionMode.current) painterResource(id = R.drawable.coil_preview) else null),
             )
             if (isDetailPage) {
                 Text(

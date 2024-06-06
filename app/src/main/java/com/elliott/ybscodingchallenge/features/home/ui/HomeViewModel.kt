@@ -2,8 +2,10 @@ package com.elliott.ybscodingchallenge.features.home.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.elliott.ybscodingchallenge.data.photorepository.PhotoRepository
 import com.elliott.ybscodingchallenge.data.searchapi.FlickrSearch
 import com.elliott.ybscodingchallenge.data.searchapi.FlickrSearchResponse
+import com.elliott.ybscodingchallenge.data.searchapi.Photo
 import com.elliott.ybscodingchallenge.data.searchapi.TagMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,15 +15,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val searchApi: FlickrSearch.Service
+    private val searchApi: FlickrSearch.Service,
+    private val photoRepository: PhotoRepository,
 ): ViewModel() {
     private var _state: MutableStateFlow<HomeViewModelState> = MutableStateFlow(HomeViewModelState())
     val state = _state.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            getImages()
-        }
+        getImages()
     }
 
     fun onEvent(event: HomeEvent) {
@@ -31,7 +32,15 @@ class HomeViewModel @Inject constructor(
             is HomeEvent.UserIdRemoved -> removeUserId()
             is HomeEvent.TextChanged -> updateSearchText(event.searchTerm)
             is HomeEvent.StrictSearchInteracted -> updateStrictSearch(event.enabled)
+            is HomeEvent.PhotoTapped -> storePhotoDetail(event.photo)
+            is HomeEvent.DetailScreenOpened -> _state.value = _state.value.copy(showDetailScreen = false)
+            is HomeEvent.SomethingWentWrong -> getImages()
         }
+    }
+
+    private fun storePhotoDetail(photo: Photo) {
+        photoRepository.setPhoto(photo)
+        _state.value = _state.value.copy(showDetailScreen = true)
     }
 
     private fun addSearchTerm(term: String) {
@@ -74,33 +83,37 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun useRegex(input: String): Boolean {
-        val regex1 = Regex(pattern = "\\d\\d\\d\\d\\d\\d\\d\\d\\d@N\\d\\d", options = setOf(RegexOption.IGNORE_CASE))
-        val regex2 = Regex(pattern = "\\d\\d\\d\\d\\d\\d\\d\\d@N\\d\\d", options = setOf(RegexOption.IGNORE_CASE))
-        return regex1.matches(input) || regex2.matches(input)
+        val regex = Regex(pattern = "[0-9]+@N\\d\\d", options = setOf(RegexOption.IGNORE_CASE))
+        return regex.matches(input)
     }
 
 
-
     private fun getImages() {
-        _state.value = _state.value.copy(flickrSearchResults = null)
+        _state.value = _state.value.copy(flickrSearchResults = FlickrApiState.Loading)
         viewModelScope.launch {
-            val response = searchApi.searchImages(
-                tags = _state.value.tags.joinToString(separator = ","),
-                tagMode = if (_state.value.strictSearch) TagMode.ALL else TagMode.ANY,
-                userId = _state.value.userId
+            try {
+                val response = searchApi.searchImages(
+                    tags = _state.value.tags.joinToString(separator = ","),
+                    tagMode = if (_state.value.strictSearch) TagMode.ALL else TagMode.ANY,
+                    userId = _state.value.userId
 
                 )
-            _state.value = _state.value.copy(flickrSearchResults = response)
+                _state.value =
+                    _state.value.copy(flickrSearchResults = FlickrApiState.DataAvailable(response))
+            } catch (error: Throwable) {
+                _state.value = _state.value.copy(flickrSearchResults = FlickrApiState.Error(error))
         }
+    }
     }
 }
 
 data class HomeViewModelState(
-    val flickrSearchResults: FlickrSearchResponse? = null,
+    val flickrSearchResults: FlickrApiState = FlickrApiState.Loading,
     val tags: MutableList<String> = mutableListOf("Yorkshire"),
     val userId: String? = null,
     val searchInput: String = "",
     val strictSearch: Boolean = false,
+    val showDetailScreen: Boolean = false,
 )
 
 sealed class HomeEvent {
@@ -109,4 +122,16 @@ sealed class HomeEvent {
     data object UserIdRemoved: HomeEvent()
     data class StrictSearchInteracted(val enabled: Boolean): HomeEvent()
     data class TextChanged(val searchTerm: String): HomeEvent()
+    data class PhotoTapped(val photo: Photo): HomeEvent()
+    data object DetailScreenOpened: HomeEvent()
+    data object SomethingWentWrong: HomeEvent()
+}
+
+sealed class FlickrApiState {
+    data object Loading: FlickrApiState()
+
+    data class Error(val error: Throwable): FlickrApiState()
+
+    data class DataAvailable(val response: FlickrSearchResponse?): FlickrApiState()
+
 }

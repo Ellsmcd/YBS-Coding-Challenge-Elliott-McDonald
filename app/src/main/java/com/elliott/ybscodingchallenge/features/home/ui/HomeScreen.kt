@@ -12,15 +12,19 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,6 +33,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.elliott.ybscodingchallenge.R
 import com.elliott.ybscodingchallenge.data.searchapi.DescriptionContent
 import com.elliott.ybscodingchallenge.data.searchapi.Photo
@@ -40,11 +47,16 @@ import com.elliott.ybscodingchallenge.ui.theme.YBSCodingChallengeTheme
 
 @Composable
 fun HomeScreen(
-    state: HomeViewModelState,
-    onEvent: (HomeEvent) -> Unit,
-    onImageClick: (Photo) -> Unit,
+    navigateToDetail: () -> Unit,
+    viewModel: HomeViewModel = hiltViewModel(),
 ) {
-
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    LaunchedEffect(key1 = state.showDetailScreen) {
+        if (state.showDetailScreen) {
+            viewModel.onEvent(HomeEvent.DetailScreenOpened)
+            navigateToDetail()
+        }
+    }
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -53,7 +65,7 @@ fun HomeScreen(
             TagSearchScreen(
                 searchTerm = state.searchInput,
                 onEvent = {
-                    onEvent(it)
+                    viewModel.onEvent(it)
                 }
             )
         }
@@ -61,7 +73,7 @@ fun HomeScreen(
             UserSearchComponent(
                 userId = state.userId,
                 onEvent = {
-                    onEvent(it)
+                    viewModel.onEvent(it)
                 },
             )
         }
@@ -70,41 +82,94 @@ fun HomeScreen(
                 tags = state.tags,
                 strictSearch = state.strictSearch,
                 onEvent = {
-                    onEvent(it)
+                    viewModel.onEvent(it)
                 })
         }
-        state.flickrSearchResults?.photos?.let {
-            itemsIndexed(it.photo) { index, photo ->
-                ImageItem(
-                    photo = photo,
-                    modifier = Modifier.padding(top = if (index == 0) 8.dp else 0.dp, bottom = 24.dp),
-                    onEvent = {
-                        onEvent(it)
-                    },
-                    onImageClick = {
-                        onImageClick(it)
-                    },
-                )
-            }
-        }
-        state.flickrSearchResults?.stat?.let {
-            if (it == "fail") {
+        when(val flickrSearchResults = state.flickrSearchResults) {
+            is FlickrApiState.Loading -> {
                 item {
-                    Text(
-                        text = "No pictures found matching search terms. Please try again",
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        textAlign = TextAlign.Center)
+                    LoadingScreen()
                 }
             }
-        }
-        if (state.flickrSearchResults == null) {
-            item {
-                LoadingScreen()
+            is FlickrApiState.Error -> {
+                item {
+                    Text("Something went wrong, please try again")
+                    Button(
+                        onClick = {
+                            viewModel.onEvent(HomeEvent.SomethingWentWrong)
+                        },
+                        content = {
+                            Text(text = "Try again")
+                        }
+                    )
+                }
+            }
+            is FlickrApiState.DataAvailable -> {
+                flickrSearchResults.response?.stat?.let {
+                    if (it == "fail") {
+                        item {
+                            Text(
+                                text = "No pictures found matching search terms. Please try again",
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                textAlign = TextAlign.Center)
+                        }
+                    }
+                }
+                flickrSearchResults.response?.photos?.let {
+                    itemsIndexed(it.photo) { index, photo ->
+                        ImageItem(
+                            photo = photo,
+                            modifier = Modifier.padding(top = if (index == 0) 8.dp else 0.dp, bottom = 24.dp),
+                            onEvent = { event ->
+                                viewModel.onEvent(event)
+                            },
+                        )
+                    }
+                }
             }
         }
     }
 }
 
+@Composable
+fun LazyListScope.HomeScreenContent(
+    flickrSearchState: FlickrApiState,
+    onEvent: (HomeEvent) -> Unit,
+) {
+    when(flickrSearchState) {
+        is FlickrApiState.Loading -> {
+            item {
+                LoadingScreen()
+            }
+        }
+        is FlickrApiState.Error -> {
+
+        }
+        is FlickrApiState.DataAvailable -> {
+            flickrSearchState.response?.stat?.let {
+                if (it == "fail") {
+                    item {
+                        Text(
+                            text = "No pictures found matching search terms. Please try again",
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            textAlign = TextAlign.Center)
+                    }
+                }
+            }
+            flickrSearchState.response?.photos?.let {
+                itemsIndexed(it.photo) { index, photo ->
+                    ImageItem(
+                        photo = photo,
+                        modifier = Modifier.padding(top = if (index == 0) 8.dp else 0.dp, bottom = 24.dp),
+                        onEvent = { event ->
+                            onEvent(event)
+                        },
+                    )
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun TagSearchComponent(

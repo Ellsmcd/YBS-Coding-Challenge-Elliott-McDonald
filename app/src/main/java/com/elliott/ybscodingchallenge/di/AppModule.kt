@@ -1,5 +1,7 @@
 package com.elliott.ybscodingchallenge.di
 
+import com.elliott.ybscodingchallenge.data.photorepository.PhotoRepository
+import com.elliott.ybscodingchallenge.data.photorepository.PhotoRepositoryImpl
 import com.elliott.ybscodingchallenge.data.searchapi.FlickrSearch
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -75,4 +77,8 @@ object AppModule {
     @Singleton
     @Provides
     fun provideIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
+
+    @Singleton
+    @Provides
+    fun providePhotoRepository(): PhotoRepository = PhotoRepositoryImpl()
 }
