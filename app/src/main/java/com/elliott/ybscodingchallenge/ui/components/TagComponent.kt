@@ -34,19 +34,19 @@ private val tagShape = GenericShape {size, _ ->
     moveTo(0f, 0f)
 
     //Move to top of triangle
-    lineTo(size.width * 0.85f, 0f)
+    lineTo(size.width - 50, 0f)
 
     //Move to centre point of triangle
     lineTo(size.width, size.height * 0.5f)
 
     //Move to bottom of triangle
-    lineTo(size.width * 0.85f, size.height)
+    lineTo(size.width - 50 , size.height)
 
     //Move to bottom left of rectangle
     lineTo(0f, size.height)
 
     //Move to centre left of rectangle
-    lineTo(size.width * 0.05f, size.height/2)
+    lineTo(10f, size.height/2)
 
 
 }
