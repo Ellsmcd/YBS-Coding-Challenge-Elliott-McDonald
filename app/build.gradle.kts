@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.dagger.hilt)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -113,7 +112,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.navigation.compose)
-    implementation(libs.kotlinx.serialization.json)
 }
 
 kapt {

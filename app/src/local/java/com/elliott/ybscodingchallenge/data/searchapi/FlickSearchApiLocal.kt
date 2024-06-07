@@ -18,7 +18,7 @@ class FlickrServiceLocal @Inject constructor(
             delay(500)
             if ("throwError" in tags) {
                 throw Exception("Local error")
-            } else if ("failResponse" in tags) {
+            } else if ("failResponse" in tags || tags.isBlank()) {
                 emptyResponse
             } else {
                 flickrSearchResponse

@@ -17,7 +17,6 @@ import com.elliott.ybscodingchallenge.features.detail.ui.DetailScreen
 import com.elliott.ybscodingchallenge.features.home.ui.HomeScreen
 import com.elliott.ybscodingchallenge.ui.theme.YBSCodingChallengeTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.serialization.Serializable
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -71,10 +70,9 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Serializable
+
 object HomeScreenView
 
-@Serializable
 object DetailScreeView
 
 
