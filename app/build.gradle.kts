@@ -24,6 +24,7 @@ android {
         }
 
         buildConfigField("String", "FLICKR_API_KEY", "\"40124db5b76259ab8e386feac0acfb81\"")
+        signingConfig = signingConfigs.getByName("debug")
     }
 
 

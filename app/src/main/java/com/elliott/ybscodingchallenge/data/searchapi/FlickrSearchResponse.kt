@@ -1,7 +1,5 @@
 package com.elliott.ybscodingchallenge.data.searchapi
 
-import kotlinx.serialization.Serializable
-
 data class FlickrSearchResponse(
     val photos: Photos?,
     val stat: String
@@ -15,7 +13,6 @@ data class Photos(
     val total: Int
 )
 
-@Serializable
 data class Photo(
     val datetaken: String,
     val description: DescriptionContent,
@@ -32,7 +29,7 @@ data class Photo(
     val url_h: String? = null,
     val views: String
 )
-@Serializable
+
 data class DescriptionContent(
     val _content: String
 )
