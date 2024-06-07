@@ -17,8 +17,8 @@ class PhotoRespositoryTest {
 
     @Test
     fun testPhotoIsAddedWhenSetIsCalled() {
-        sut.setPhoto(photo)
         initialiseSut()
+        sut.setPhoto(photo)
         Assert.assertEquals(
             photo,
             sut.getPhoto()
