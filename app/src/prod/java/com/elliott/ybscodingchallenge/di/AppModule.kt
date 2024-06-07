@@ -1,5 +1,6 @@
 package com.elliott.ybscodingchallenge.di
 
+import com.elliott.ybscodingchallenge.BuildConfig
 import com.elliott.ybscodingchallenge.data.photorepository.PhotoRepository
 import com.elliott.ybscodingchallenge.data.photorepository.PhotoRepositoryImpl
 import com.elliott.ybscodingchallenge.data.searchapi.FlickrSearch
@@ -39,7 +40,7 @@ object AppModule {
                     .request()
                     .url
                     .newBuilder()
-                    .addQueryParameter("api_key", "40124db5b76259ab8e386feac0acfb81")
+                    .addQueryParameter("api_key", BuildConfig.FLICKR_API_KEY)
                     .addQueryParameter("safe_search", "1")
                     .addQueryParameter("format", "json")
                     .addQueryParameter("nojsoncallback", "1")

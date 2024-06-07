@@ -16,7 +16,13 @@ class FlickrServiceLocal @Inject constructor(
     ): FlickrSearchResponse? {
         return withContext(ioDispatcher) {
             delay(500)
-            flickrSearchResponse
+            if ("throwError" in tags) {
+                throw Exception("Local error")
+            } else if ("failResponse" in tags) {
+                emptyResponse
+            } else {
+                flickrSearchResponse
+            }
         }
     }
 
@@ -51,6 +57,16 @@ class FlickrServiceLocal @Inject constructor(
                 total = 100,
             ),
             stat = "200"
+        )
+        private val emptyResponse = FlickrSearchResponse(
+            Photos(
+                1,
+                1,
+                100,
+                listOf(),
+                total = 0,
+            ),
+            stat = "fail"
         )
     }
 }

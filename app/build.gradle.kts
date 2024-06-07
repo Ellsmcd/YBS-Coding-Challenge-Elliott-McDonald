@@ -22,6 +22,8 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        buildConfigField("String", "FLICKR_API_KEY", "\"40124db5b76259ab8e386feac0acfb81\"")
     }
 
 

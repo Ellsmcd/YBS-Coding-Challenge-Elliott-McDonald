@@ -40,7 +40,7 @@ import com.elliott.ybscodingchallenge.ui.components.TagComponent
 import com.elliott.ybscodingchallenge.ui.theme.Typography
 
 @Composable
-fun ImageItem(
+fun ImageItemComponent(
     photo: Photo,
     modifier: Modifier = Modifier,
     onEvent: (HomeEvent) -> Unit = { },

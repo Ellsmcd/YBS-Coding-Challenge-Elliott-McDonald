@@ -2,6 +2,7 @@ package com.elliott.ybscodingchallenge
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -29,6 +30,7 @@ class YBSCodingChallengeEspressoTest {
             }
         }
     }
+
 
     @Test
     fun testAddingAndRemovingTagViaSearch() {
@@ -112,7 +114,7 @@ class YBSCodingChallengeEspressoTest {
     }
 
     @Test
-    fun detailsDoNotExistOnHomeScreenImages() {
+    fun testDetailsDoNotExistOnHomeScreenImages() {
         waitForPageLoad()
         composeRule.apply {
             waitUntil {
@@ -122,6 +124,33 @@ class YBSCodingChallengeEspressoTest {
             onNodeWithTag("detailDate").assertDoesNotExist()
             onNodeWithTag("detailViews").assertDoesNotExist()
             onNodeWithTag("detailDescription").assertDoesNotExist()
+        }
+    }
+
+    @Test
+    fun testEmptyResponseResultsInSomethingWentWrongScreen() {
+        waitForPageLoad()
+        composeRule.apply {
+            onNodeWithTag("searchBox").performClick().performTextInput("failResponse")
+            onNodeWithTag("searchButton").performClick()
+            waitUntil {
+                onAllNodesWithText("No pictures found matching search terms. Please try again")
+                    .fetchSemanticsNodes().size == 1
+            }
+        }
+    }
+
+    @Test
+    fun testErrorResponseResultsInTryAgain() {
+        waitForPageLoad()
+        composeRule.apply {
+            onNodeWithTag("searchBox").performClick().performTextInput("throwError")
+            onNodeWithTag("searchButton").performClick()
+            waitUntil {
+                onAllNodesWithTag("tryAgain")
+                    .fetchSemanticsNodes().size == 1
+            }
+            onNodeWithTag("tryAgain").performClick()
         }
     }
 }
